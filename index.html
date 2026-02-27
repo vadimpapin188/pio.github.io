@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Павлодар Инфо</title>
+    <style>
+        body {
+            /* Фоновая картинка */
+            background-image: url('bg1.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 20px; /* Расстояние между карточками */
+            flex-wrap: wrap; /* Чтобы на телефонах карточки шли вниз */
+            justify-content: center;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15); /* Цвет карточки */
+            backdrop-filter: blur(10px); /* Эффект размытия фона */
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            flex: 1; /* Карточки делят место поровну */
+            min-width: 300px; /* Минимальная ширина */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Стиль для блока времени и погоды */
+        .info-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-align: center;
+            margin: auto 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .weather-desc {
+            font-size: 0.5em;
+            font-weight: normal;
+        }
+
+        /* Стиль для iframe новостей */
+        .news-frame {
+            width: 100%;
+            height: 350px;
+            border: none;
+            border-radius: 15px;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <div class="card">
+            <h2>Время</h2>
+            <div id="time" class="info-display">Загрузка...</div>
+        </div>
+
+        <div class="card">
+            <h2>Погода</h2>
+            <div id="weather" class="info-display">Загрузка...</div>
+        </div>
+
+        <div class="card">
+            <h2>Новости</h2>
+            <iframe src="https://tengrinews.kz/local/pavlodar/" class="news-frame"></iframe>
+        </div>
+
+    </div>
+
+    <script>
+        // --- ВРЕМЯ ---
+        function updateTime() {
+            const now = new Date();
+            // Павлодар находится в часовом поясе Asia/Almaty (UTC+5)
+            const options = { timeZone: 'Asia/Almaty', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('time').innerText = now.toLocaleTimeString('ru-RU', options);
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // --- ПОГОДА (API) ---
+        async function getWeather() {
+            // Твой НОВЫЙ API ключ
+            const apiKey = 'ba776bc93b42e383e9c684778fce3f06'; 
+            const city = 'Pavlodar';
+            // Правильно сформированный URL
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=ru`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                const temp = Math.round(data.main.temp);
+                const desc = data.weather[0].description;
+                document.getElementById('weather').innerHTML = `${temp}°C<br><span class="weather-desc">${desc}</span>`;
+            } catch (error) {
+                document.getElementById('weather').innerText = 'Ошибка API';
+                console.error(error);
+            }
+        }
+        
+        // Запускаем получение погоды
+        getWeather(); 
+    </script>
+</body>
+</html>
