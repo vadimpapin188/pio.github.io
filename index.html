@@ -141,7 +141,7 @@ async function getNews() {
     
     // Используем proxy, чтобы обойти ограничения безопасности (CORS)
     // Используем другой прокси (AllOrigins), он надежнее
-const apiUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
+const apiUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
 
     try {
         const response = await fetch(apiUrl);
