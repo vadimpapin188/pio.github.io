@@ -134,30 +134,38 @@
         // Запускаем получение погоды
         getWeather(); 
 
-        // --- НОВОСТИ (RSS -> JSON) ---
+     // --- НОВОСТИ (RSS) ---
 async function getNews() {
-    // Ссылка на RSS ленту (например, Tengrinews)
-    const rssUrl = "https://tengrinews.kz/rss/local/pavlodar/";
+    // Ссылка на RSS ленту PavlodarNews
+    const rssUrl = "https://pavlodarnews.kz/rss/";
     
     // Используем proxy, чтобы обойти ограничения безопасности (CORS)
-    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+    const apiUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
 
     try {
         const response = await fetch(apiUrl);
-        const data = await response.json();
+        const text = await response.text();
+        
+        // Разбираем XML данные
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, "text/xml");
+        const items = xml.querySelectorAll("item");
         
         const newsList = document.getElementById('news-list');
         newsList.innerHTML = ''; // Очищаем список
 
         // Берем первые 5 новостей
-        data.items.slice(0, 5).forEach(item => {
+        for (let i = 0; i < Math.min(items.length, 5); i++) {
+            const title = items[i].querySelector("title").textContent;
+            const link = items[i].querySelector("link").textContent;
+            
             const li = document.createElement('li');
             li.style.marginBottom = "10px";
             
             // Создаем ссылку на новость
-            li.innerHTML = `<a href="${item.link}" target="_blank" style="color: white; text-decoration: none;">${item.title}</a>`;
+            li.innerHTML = `<a href="${link}" target="_blank" style="color: white; text-decoration: none;">${title}</a>`;
             newsList.appendChild(li);
-        });
+        }
     } catch (error) {
         document.getElementById('news-list').innerHTML = '<li>Ошибка загрузки новостей</li>';
         console.error(error);
