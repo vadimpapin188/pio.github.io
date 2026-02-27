@@ -90,9 +90,9 @@
 
        <div class="card">
     <h2>Новости Павлодара</h2>
-    <div id="news-container">
-       <iframe name="myNewsFrame" src="https://tengrinews.kz/"></iframe>
-    </div>
+   <ul id="news-list">
+    <li>Загрузка новостей...</li>
+</ul>
 </div>
 
     </div>
@@ -132,46 +132,35 @@
         // Запускаем получение погоды
         getWeather(); 
 
-     // --- НОВОСТИ (RSS) ---
+// --- НОВОСТИ (API) ---
 async function getNews() {
-    // Ссылка на RSS ленту PavlodarNews
-    const rssUrl = "https://pavlodarnews.kz/rss/";
-    
-    // Используем proxy, чтобы обойти ограничения безопасности (CORS)
-    // Используем другой прокси (AllOrigins), он надежнее
-const apiUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
+    // Используем API сервис для обработки RSS
+    const rssUrl = "https://www.inform.kz/ru/rss/pavlodar";
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
     try {
         const response = await fetch(apiUrl);
-        const text = await response.text();
-        
-        // Разбираем XML данные
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, "text/xml");
-        const items = xml.querySelectorAll("item");
-        
-        const newsList = document.getElementById('news-list');
-        newsList.innerHTML = ''; // Очищаем список
+        const data = await response.json(); // Получаем JSON
 
-        // Берем первые 5 новостей
-        for (let i = 0; i < Math.min(items.length, 5); i++) {
-            const title = items[i].querySelector("title").textContent;
-            const link = items[i].querySelector("link").textContent;
-            
-            const li = document.createElement('li');
-            li.style.marginBottom = "10px";
-            
-            // Создаем ссылку на новость
-            li.innerHTML = `<a href="${link}" target="_blank" style="color: white; text-decoration: none;">${title}</a>`;
-            newsList.appendChild(li);
+        if (data.status === 'ok') {
+            const newsList = document.getElementById('news-list');
+            newsList.innerHTML = ''; // Очищаем список
+
+            // Берем первые 5 новостей
+            data.items.slice(0, 5).forEach(item => {
+                const li = document.createElement('li');
+                li.style.marginBottom = "10px";
+                li.innerHTML = `<a href="${item.link}" target="_blank" style="color: white; text-decoration: none;">${item.title}</a>`;
+                newsList.appendChild(li);
+            });
         }
     } catch (error) {
-        document.getElementById('news-list').innerHTML = '<li>Ошибка загрузки новостей</li>';
+        document.getElementById('news-list').innerHTML = '<li>Ошибка API</li>';
         console.error(error);
     }
 }
 
-// Запускаем получение новостей
+// Запускаем
 getNews();
 
         window.onload = function() {
