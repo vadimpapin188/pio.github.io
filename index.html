@@ -133,14 +133,17 @@
         getWeather(); 
 
 // --- НОВОСТИ (API) ---
-async function getNews() {
-    // Используем API сервис для обработки RSS
-    const rssUrl = "https://www.inform.kz/ru/rss/pavlodar";
+// --- НОВОСТИ ИЗ GOOGLE NEWS (API) ---
+async function getGoogleNews() {
+    // RSS-лента из Google News
+    const rssUrl = "https://news.google.com/rss/search?q=Павлодар&hl=ru&gl=KZ&ceid=KZ:ru";
+    
+    // Используем прокси, чтобы обойти CORS
     const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
     try {
         const response = await fetch(apiUrl);
-        const data = await response.json(); // Получаем JSON
+        const data = await response.json(); // Получаем JSON!
 
         if (data.status === 'ok') {
             const newsList = document.getElementById('news-list');
@@ -153,15 +156,16 @@ async function getNews() {
                 li.innerHTML = `<a href="${item.link}" target="_blank" style="color: white; text-decoration: none;">${item.title}</a>`;
                 newsList.appendChild(li);
             });
+            console.log("Новости Google News загружены");
         }
     } catch (error) {
-        document.getElementById('news-list').innerHTML = '<li>Ошибка API</li>';
+        document.getElementById('news-list').innerHTML = '<li>Ошибка загрузки Google News</li>';
         console.error(error);
     }
 }
 
 // Запускаем
-getNews();
+getGoogleNews();
 
         window.onload = function() {
     // Прокрутить на 300 пикселей вниз
