@@ -88,10 +88,14 @@
             <div id="weather" class="info-display">Загрузка...</div>
         </div>
 
-        <div class="card">
-            <h2>Новости</h2>
-            <iframe src="https://tengrinews.kz/local/pavlodar/" class="news-frame"></iframe>
-        </div>
+       <div class="card">
+    <h2>Новости Павлодара</h2>
+    <div id="news-container">
+        <ul id="news-list" style="padding-left: 20px; overflow-y: auto; height: 300px;">
+            <li>Загрузка новостей...</li>
+        </ul>
+    </div>
+</div>
 
     </div>
 
@@ -129,6 +133,39 @@
         
         // Запускаем получение погоды
         getWeather(); 
+
+        // --- НОВОСТИ (RSS -> JSON) ---
+async function getNews() {
+    // Ссылка на RSS ленту (например, Tengrinews)
+    const rssUrl = "https://tengrinews.kz/rss/local/pavlodar/";
+    
+    // Используем proxy, чтобы обойти ограничения безопасности (CORS)
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+    try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        
+        const newsList = document.getElementById('news-list');
+        newsList.innerHTML = ''; // Очищаем список
+
+        // Берем первые 5 новостей
+        data.items.slice(0, 5).forEach(item => {
+            const li = document.createElement('li');
+            li.style.marginBottom = "10px";
+            
+            // Создаем ссылку на новость
+            li.innerHTML = `<a href="${item.link}" target="_blank" style="color: white; text-decoration: none;">${item.title}</a>`;
+            newsList.appendChild(li);
+        });
+    } catch (error) {
+        document.getElementById('news-list').innerHTML = '<li>Ошибка загрузки новостей</li>';
+        console.error(error);
+    }
+}
+
+// Запускаем получение новостей
+getNews();
     </script>
 </body>
 </html>
