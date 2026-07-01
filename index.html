@@ -99,6 +99,37 @@
 
     <script>
         // --- ВРЕМЯ ---
+        function getAdvice(temp, desc) {
+    desc = desc.toLowerCase();
+
+    if (desc.includes('дожд')) return 'Лучше взять зонт';
+    if (desc.includes('снег') || desc.includes('метель')) return 'Осторожно на улице';
+    if (temp >= 15) return 'Да, можно гулять';
+    if (temp >= 10) return 'Можно гулять, но возьми куртку';
+    if (temp >= 0) return 'Холодно, одевайся теплее';
+    return 'Очень холодно, лучше тепло одеться';
+}
+
+async function getWeather() {
+    const apiKey = 'ba776bc93b42e383e9c684778fce3f06';
+    const city = 'Pavlodar';
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=ru`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const temp = Math.round(data.main.temp);
+        const desc = data.weather[0].description;
+        const advice = getAdvice(temp, desc);
+
+        document.getElementById('weather').innerHTML =
+            `${temp}°C<br><span class="weather-desc">${desc}</span><br><br>${advice}`;
+    } catch (error) {
+        document.getElementById('weather').innerText = 'Ошибка API';
+        console.error(error);
+    }
+}
         function updateTime() {
             const now = new Date();
             // Павлодар находится в часовом поясе Asia/Almaty (UTC+5)
@@ -131,6 +162,7 @@
         
         // Запускаем получение погоды
         getWeather(); 
+        getAdvice();
 
 // --- НОВОСТИ (API) ---
 // --- НОВОСТИ ИЗ GOOGLE NEWS (API) ---
